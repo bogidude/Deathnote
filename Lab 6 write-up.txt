@@ -1,0 +1,10 @@
+The strategy we are running in the arena is iterating through process id's and killing any that is 
+not the calling process's thread, after we kill a process, we then fork. This does mean that we can kill ourselves
+but the speed at which this method works means that we generally kill the other competitors completely. We set 
+our loop of killing processes to 50 below the calling process' id in order to increase the likelihood
+of killing an enemy that spawned before us while still maintaining speed. So far in the arena, we have beat
+every test case with this strategy though against phalanx and sniper, phalanx will sometimes win as
+we kill too many of our own processes. We tried exploring killing by group id, scanning through process ids
+starting at 0, and searching through proc to find and kill other processes but these were not as effective.
+We had an additional plan that in case these did not work, where we would try to either change permissions of the 
+opponent's file so it could not execute or just delete it to win the best of 2 out of 3. 
